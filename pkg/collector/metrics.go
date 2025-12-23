@@ -78,7 +78,7 @@ func delEventCountMetric(event *v1.Event) {
 		"source":                    fmt.Sprintf("%s/%s", event.Source.Host, event.Source.Component),
 	})
 	if ret {
-		klog.Infof("event %s has been removed from Prometheus", event.ObjectMeta.Name)
+		klog.V(3).Infof("event %s has been removed from Prometheus", event.ObjectMeta.Name)
 	}
 }
 
@@ -94,7 +94,7 @@ func delEventTotalMetric(event *v1.Event) {
 		"source":                    fmt.Sprintf("%s/%s", event.Source.Host, event.Source.Component),
 	})
 	if ret {
-		klog.Infof("event %s has been removed from Prometheus", event.ObjectMeta.Name)
+		klog.V(3).Infof("event %s has been removed from Prometheus", event.ObjectMeta.Name)
 	}
 }
 

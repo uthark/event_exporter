@@ -26,6 +26,7 @@ import (
 	"k8s.io/apimachinery/pkg/util/runtime"
 	"k8s.io/apimachinery/pkg/util/wait"
 	"k8s.io/client-go/informers"
+	"k8s.io/client-go/informers/core/v1"
 	"k8s.io/client-go/kubernetes"
 	coreV1 "k8s.io/client-go/listers/core/v1"
 	"k8s.io/client-go/tools/cache"
@@ -45,6 +46,7 @@ type EventCollector struct {
 	filters           []filters.EventFilter
 	cache             map[string]v1api.Event
 	locker            sync.Mutex
+	event             v1.EventInformer
 }
 
 func NewEventCollector(kc kubernetes.Interface, factory informers.SharedInformerFactory, o *options.Options) *EventCollector {
@@ -52,6 +54,7 @@ func NewEventCollector(kc kubernetes.Interface, factory informers.SharedInformer
 	eventCollector := &EventCollector{
 		kc:                kc,
 		factory:           factory,
+		event:             event,
 		eventLister:       event.Lister(),
 		eventListerSynced: event.Informer().HasSynced,
 		queue:             workqueue.NewRateLimitingQueue(workqueue.DefaultControllerRateLimiter()),
@@ -135,7 +138,7 @@ func (ec *EventCollector) syncEvent(key string) error {
 	event, err := ec.eventLister.Events(namespace).Get(name)
 	if err != nil {
 		if errors.IsNotFound(err) {
-			klog.Infof("event %s has been deleted", key)
+			klog.V(3).Infof("event %s has been deleted", key)
 			ec.locker.Lock()
 			defer ec.locker.Unlock()
 			if deletedEvent, ok := ec.cache[name]; ok {
@@ -150,7 +153,7 @@ func (ec *EventCollector) syncEvent(key string) error {
 		ec.locker.Lock()
 		ec.cache[event.ObjectMeta.Name] = *event
 		ec.locker.Unlock()
-		klog.Infof(
+		klog.V(3).Infof(
 			"event name: %s,count: %d,involvedObject_namespace: %s,involvedObject_kind: %s,involvedObject_name: %s,reason: %s,type: %s",
 			event.Name,
 			event.Count,

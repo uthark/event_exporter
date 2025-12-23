@@ -32,11 +32,11 @@ export SHELLOPTS := errexit
 export GOFLAGS := -mod=vendor
 
 # this is not a public registry; change it to your own
-REGISTRY ?= caicloud/
+REGISTRY ?= uthark/
 BASE_REGISTRY ?=
 
 ARCH ?=
-GO_VERSION ?= 1.13
+GO_VERSION ?= 1.25.5
 
 CPUS ?= $(shell /bin/bash hack/read_cpus_available.sh)
 
@@ -56,7 +56,7 @@ build: build-local
 build-local: clean
 	@echo ">> building binaries"``
 	@GOOS=$(shell uname -s | tr A-Z a-z) GOARCH=$(ARCH) CGO_ENABLED=0	 \
-	go build -i -v -o $(OUTPUT_DIR)/event_exporter -p $(CPUS)			\
+	go build -v -o $(OUTPUT_DIR)/event_exporter -p $(CPUS)			\
 		 -ldflags "-s -w 										        \
 	  -X $(ROOT)/pkg/version.Version=${VERSION}							 \
 	  -X $(ROOT)/pkg/version.Branch=${BRANCH}							 \
@@ -76,7 +76,7 @@ build-linux:
 	  -e SHELLOPTS=$(SHELLOPTS)                                                        \
 	  $(BASE_REGISTRY)golang:$(GO_VERSION)                                            \
 	    /bin/bash -c '                                    								\
-	      	go build -i -v -o $(OUTPUT_DIR)/event_exporter -p $(CPUS)			\
+	      	go build -v -o $(OUTPUT_DIR)/event_exporter -p $(CPUS)			\
           		 -ldflags "-s -w 										        \
           	  -X $(ROOT)/pkg/version.Version=${VERSION}							 \
           	  -X $(ROOT)/pkg/version.Branch=${BRANCH}							 \

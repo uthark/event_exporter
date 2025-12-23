@@ -84,4 +84,5 @@ func main() {
 	if err := group.Wait(); err != nil {
 		klog.Fatal(err)
 	}
+	klog.Infof("Terminated.")
 }
